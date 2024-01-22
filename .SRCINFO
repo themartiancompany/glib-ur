@@ -6,6 +6,8 @@ pkgbase = glib
 	arch = i686
 	arch = x86_64
 	arch = armv6h
+	arch = arm
+	arch = aarch64
 	license = LGPL
 	depends = glibc
 	depends = sh
@@ -20,4 +22,3 @@ pkgbase = glib
 	sha1sums = 8a25fde3c79567262b3024f4e74c9ca4ee8a6279
 
 pkgname = glib
-

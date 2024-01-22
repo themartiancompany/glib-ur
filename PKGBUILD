@@ -5,7 +5,13 @@ pkgname=glib
 pkgver=1.2.10
 pkgrel=18
 pkgdesc="Common C routines used by Gtk+ and other libs"
-arch=('i686' 'x86_64' 'armv6h')
+arch=(
+  'i686'
+  'x86_64'
+  'armv6h'
+  'arm'
+  'aarch64'
+)
 url="http://www.gtk.org/"
 license=('LGPL')
 depends=('glibc' 'sh')
