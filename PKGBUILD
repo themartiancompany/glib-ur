@@ -74,11 +74,11 @@ source=(
   "aclocal-fixes.patch"
   "glib1-autotools.patch"
 )
-sha1sums=(
-  'e5a9361c594608d152d5d9650154c2e3260b87fa'
-  'a2cc224a66aeffdcac16ebd9e8af18143cf54918'
-  'ae4438cf56c0c9264ee36f6973fb445f9a820be0'
-  '8a25fde3c79567262b3024f4e74c9ca4ee8a6279'
+sha256sums=(
+  '6e1ce7eedae713b11db82f11434d455d8a1379f783a79812cd2e05fc024a8d9f'
+  'd62a2fdb0e8af99f5136fb7d86e0f6f24e5b17d08d8cf0a992772649dd9fff17'
+  'acb153503489b747b7e41787d92a4ba5cd631e8f0dbf2fab14936ebeb49cbbc1'
+  'ec4a932c20b2b79f69d6049c799d52740b59997b34c082c80d82640e27a2198f'
 )
 
 prepare() {
@@ -156,3 +156,4 @@ package() {
     DESTDIR="${pkgdir}" \
     install
 }
+
