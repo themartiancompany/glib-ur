@@ -1,8 +1,47 @@
+# SPDX-License-Identifier: AGPL-3.0
+
+#    ----------------------------------------------------------------------
+#    Copyright © 2024, 2025  Pellegrino Prevete
+#
+#    All rights reserved
+#    ----------------------------------------------------------------------
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Maintainer: Truocolo <truocolo@aol.com>
+# Maintainer: Truocolo <truocolo@0x6E5163fC4BFc1511Dbe06bB605cc14a3e462332b>
+# Maintainer: Pellegrino Prevete (dvorak) <pellegrinoprevete@gmail.com>
+# Maintainer: Pellegrino Prevete (dvorak) <dvorak@0x87003Bd6C074C713783df04f36517451fF34CBEf>
 # Maintainer: Connor Behan <connor.behan@gmail.com>
 # Contributor: Eric Bélanger <eric@archlinux.org>
 
-pkgname=glib
-pkgver=1.2.10
+_os="$( \
+  uname \
+    -o)"
+if [[ "${_os}" == "GNU/Linux" ]]; then
+  _libc="glibc"
+  _shell="sh"
+elif [[ "${_os}" == "Android" ]]; then
+  _libc="ndk-sysroot"
+  _shell="bash"
+fi
+_proj="gtk"
+_pkg=glib
+pkgname="${_pkg}"
+_majver="1.2"
+_minver="10"
+pkgver="${_majver}.${_minver}"
 pkgrel=18
 pkgdesc="Common C routines used by Gtk+ and other libs"
 arch=(
@@ -11,49 +50,109 @@ arch=(
   'armv6h'
   'arm'
   'aarch64'
+  'armv7l'
+  'mips'
+  'pentium4'
 )
-url="http://www.gtk.org/"
-license=('LGPL')
-depends=('glibc' 'sh')
-options=('!makeflags')
-source=(https://download.gnome.org/sources/glib/1.2/${pkgname}-${pkgver}.tar.gz
-	gcc340.patch aclocal-fixes.patch glib1-autotools.patch)
-sha1sums=('e5a9361c594608d152d5d9650154c2e3260b87fa'
-          'a2cc224a66aeffdcac16ebd9e8af18143cf54918'
-          'ae4438cf56c0c9264ee36f6973fb445f9a820be0'
-          '8a25fde3c79567262b3024f4e74c9ca4ee8a6279')
+url="http://www.${_proj}.org"
+license=(
+  'LGPL'
+)
+depends=(
+  "${_libc}"
+  "${_shell}"
+)
+options=(
+  '!makeflags'
+)
+_http="https://download.gnome.org"
+_ns="sources"
+_url="${_http}/${_ns}/${_pkg}"
+source=(
+  "${_url}/${_majver}/${pkgname}-${pkgver}.tar.gz"
+  "gcc340.patch"
+  "aclocal-fixes.patch"
+  "glib1-autotools.patch"
+)
+sha1sums=(
+  'e5a9361c594608d152d5d9650154c2e3260b87fa'
+  'a2cc224a66aeffdcac16ebd9e8af18143cf54918'
+  'ae4438cf56c0c9264ee36f6973fb445f9a820be0'
+  '8a25fde3c79567262b3024f4e74c9ca4ee8a6279'
+)
 
 prepare() {
-  cd ${pkgname}-${pkgver}
-  patch -Np1 -i "${srcdir}/gcc340.patch"
-  patch -Np0 -i "${srcdir}/aclocal-fixes.patch"
-  patch -Np1 -i "${srcdir}/glib1-autotools.patch"
-  sed -i -e 's/ifdef[[:space:]]*__OPTIMIZE__/if 0/' glib.h
-  rm acinclude.m4
+  cd \
+    "${pkgname}-${pkgver}"
+  patch \
+    -Np1 \
+    -i \
+    "${srcdir}/gcc340.patch"
+  patch \
+    -Np0 \
+    -i \
+    "${srcdir}/aclocal-fixes.patch"
+  patch \
+    -Np1 \
+    -i \
+    "${srcdir}/glib1-autotools.patch"
+  sed \
+    -i \
+    -e \
+      's/ifdef[[:space:]]*__OPTIMIZE__/if 0/' \
+    "glib.h"
+  rm \
+    "acinclude.m4"
 }
 
 build() {
-  cd ${pkgname}-${pkgver}
+  local \
+    _config_flags=() \
+    _configure_opts=()
+  _configure_opts+=(
+    --prefix="/usr"
+    --mandir="/usr/share/man"
+    --infodir="/usr/share/info"
+  )
   if [[ $CARCH = "i686" ]]; then
-    CONFIGFLAG='--host=i686-pc-linux-gnu --target=i686-pc-linux-gnu'
+    _config_flags+=(
+      --host="i686-pc-linux-gnu"
+      --target="i686-pc-linux-gnu"
+    )
   elif [[ $CARCH = "x86_64" ]]; then
-    CONFIGFLAG='--host=x86_64-unknown-linux-gnu --target=x86_64-unknown-linux-gnu'
+    _config_flags+=(
+      --host="x86_64-unknown-linux-gnu"
+      --target="x86_64-unknown-linux-gnu"
+    )
   elif [[ $CARCH = "armv6h" ]]; then
-    CONFIGFLAG='--host=armv6l-unknown-linux-gnueabihf --target=armv6l-unknown-linux-gnueabihf'
+    _config_flags+=(
+    --host="armv6l-unknown-linux-gnueabihf"
+    --target="armv6l-unknown-linux-gnueabihf"
+    )
   fi
-
-  autoreconf --force --install
-  CFLAGS="-Wno-format-security" ./configure --prefix=/usr --mandir=/usr/share/man \
-    --infodir=/usr/share/info $CONFIGFLAG
+  cd \
+    "${pkgname}-${pkgver}"
+  autoreconf \
+    --force \
+    --install
+  CFLAGS="-Wno-format-security" \
+  ./configure \
+    "${_configure_opts[@]}" \
+    "${_config_flags[@]}"
   make
 }
 
 check() {
-  cd ${pkgname}-${pkgver}
-  make check
+  cd \
+    "${pkgname}-${pkgver}"
+  make \
+    check
 }
 
 package() {
-  cd ${pkgname}-${pkgver}
-  make DESTDIR="${pkgdir}" install
+  cd \
+    "${pkgname}-${pkgver}"
+  make \
+    DESTDIR="${pkgdir}" \
+    install
 }
